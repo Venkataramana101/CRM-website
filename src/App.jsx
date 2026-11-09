@@ -8,6 +8,9 @@ import { CommunicationTimeline, CommunicationSummary } from './components/Commun
 import { EmailComposer, EmailTimeline } from './components/EmailInterface'
 import { initiateCall, simulateCallProgress, endCall, CALL_STATUS } from './services/telephonyService'
 import { sendEmail, EMAIL_STATUS, getEmailStats } from './services/emailService'
+import { HomePage } from './components/HomePage'
+import { TermsPage } from './components/TermsPage'
+import { PrivacyPage } from './components/PrivacyPage'
 
 const nav = [
  {label:'Overview',icon:LayoutDashboard},{label:'Leads',icon:Users},{label:'Telecaller Desk',icon:Headphones},
@@ -31,6 +34,9 @@ export default function App() {
  const [loginEmail, setLoginEmail] = useState('')
  const [loginPassword, setLoginPassword] = useState('')
  const [loginError, setLoginError] = useState('')
+
+ // Page routing for pre-login views: 'home' | 'login' | 'terms' | 'privacy'
+ const [view, setView] = useState('home')
  
  // Current telecaller selection (Priya or Rohan)
  const [currentAgent, setCurrentAgent] = useState(()=>localStorage.getItem('rcl-crm-current-agent')||'Priya')
@@ -214,8 +220,12 @@ export default function App() {
    notify(`Import complete: ${imported} leads added, ${skipped} skipped (duplicates or missing data)`)
  }
  
- // If not logged in, show login page
+ // If not logged in, show home / terms / privacy / login
  if (!isLoggedIn) {
+   if (view === 'terms') return <TermsPage onBack={() => setView('home')} />
+   if (view === 'privacy') return <PrivacyPage onBack={() => setView('home')} />
+   if (view === 'home') return <HomePage onLogin={() => setView('login')} onTerms={() => setView('terms')} onPrivacy={() => setView('privacy')} />
+   // view === 'login'
    return <div className="login-page">
      <div className="login-container">
        <div className="login-brand">
@@ -256,9 +266,14 @@ export default function App() {
            Email: frontdesk@ramaiahcapital.com<br/>
            Password: Welcome@123
          </div>
+         <div style={{textAlign:'center',marginTop:14}}>
+           <button type="button" onClick={() => setView('home')} style={{background:'none',border:'none',color:'#7a8fa0',fontSize:11,cursor:'pointer',textDecoration:'underline'}}>← Back to Home</button>
+         </div>
        </form>
        <div className="login-footer">
-         © 2026 Ramaiah Capital Private Limited
+         <button onClick={() => setView('terms')} style={{background:'none',border:'none',color:'#9aabb8',fontSize:9,cursor:'pointer',textDecoration:'underline',marginRight:12}}>Terms & Conditions</button>
+         <button onClick={() => setView('privacy')} style={{background:'none',border:'none',color:'#9aabb8',fontSize:9,cursor:'pointer',textDecoration:'underline'}}>Privacy Policy</button>
+         <div style={{marginTop:8}}>© 2026 Ramaiah Capital Private Limited</div>
        </div>
      </div>
    </div>
